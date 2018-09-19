@@ -210,7 +210,7 @@ def sample_rois(rois, fg_rois_per_image, rois_per_image, num_classes,
     # pad more to ensure a fixed minibatch size
     while keep_indexes.shape[0] < rois_per_image:
         gap = np.minimum(len(neg_rois), rois_per_image - keep_indexes.shape[0])
-        gap_indexes = npr.choice(range(len(neg_rois)), size=gap, replace=False)
+        gap_indexes = npr.choice(list(range(len(neg_rois))), size=gap, replace=False)
         keep_indexes = np.append(keep_indexes, neg_idx[gap_indexes])
 
     # select labels
@@ -285,7 +285,7 @@ def sample_rois_fpn(rois, assign_levels, fg_rois_per_image, rois_per_image, num_
     fg_rois_per_this_image = np.minimum(fg_rois_per_image, fg_indexes.size)
 
     if DEBUG:
-        print 'fg total num:', len(fg_indexes)
+        print('fg total num:', len(fg_indexes))
 
     # Sample foreground regions without replacement
     if len(fg_indexes) > fg_rois_per_this_image:
@@ -294,7 +294,7 @@ def sample_rois_fpn(rois, assign_levels, fg_rois_per_image, rois_per_image, num_
     # Select background RoIs as those within [BG_THRESH_LO, BG_THRESH_HI)
     bg_indexes = np.where((overlaps < config.TRAIN.BG_THRESH_HI) & (overlaps >= config.TRAIN.BG_THRESH_LO))[0]
     if DEBUG:
-        print 'bg total num:', len(bg_indexes)
+        print('bg total num:', len(bg_indexes))
     # Compute number of background RoIs to take from this image (guarding against there being fewer than desired)
     bg_rois_per_this_image = rois_per_image - fg_rois_per_this_image
     bg_rois_per_this_image = np.minimum(bg_rois_per_this_image, bg_indexes.size)
@@ -302,8 +302,8 @@ def sample_rois_fpn(rois, assign_levels, fg_rois_per_image, rois_per_image, num_
     if len(bg_indexes) > bg_rois_per_this_image:
         bg_indexes = npr.choice(bg_indexes, size=bg_rois_per_this_image, replace=False)
     if DEBUG:
-        print 'fg num:', len(fg_indexes)
-        print 'bg num:', len(bg_indexes)
+        print('fg num:', len(fg_indexes))
+        print('bg num:', len(bg_indexes))
 
     # bg rois statistics
     if DEBUG:
@@ -311,7 +311,7 @@ def sample_rois_fpn(rois, assign_levels, fg_rois_per_image, rois_per_image, num_
         bg_rois_on_levels = dict()
         for i, s in enumerate(config.RCNN_FEAT_STRIDE):
             bg_rois_on_levels.update({'stride%s'%s:len(np.where(bg_assign == s)[0])})
-        print bg_rois_on_levels
+        print(bg_rois_on_levels)
 
     # indexes selected
     keep_indexes = np.append(fg_indexes, bg_indexes)
@@ -322,7 +322,7 @@ def sample_rois_fpn(rois, assign_levels, fg_rois_per_image, rois_per_image, num_
     # pad more to ensure a fixed minibatch size
     while keep_indexes.shape[0] < rois_per_image:
         gap = np.minimum(len(neg_rois), rois_per_image - keep_indexes.shape[0])
-        gap_indexes = npr.choice(range(len(neg_rois)), size=gap, replace=False)
+        gap_indexes = npr.choice(list(range(len(neg_rois))), size=gap, replace=False)
         keep_indexes = np.append(keep_indexes, neg_idx[gap_indexes])
 
     # select labels
@@ -418,7 +418,7 @@ def get_rois(rois, rois_per_image, num_classes,
     # if not enough, pad until rois_per_image is satisfied
     while keep_indexes.shape[0] < rois_per_image:
         gap = np.minimum(rois_per_image - keep_indexes.shape[0], len(rois))
-        gap_indexes = npr.choice(range(len(rois)), size=gap, replace=False)
+        gap_indexes = npr.choice(list(range(len(rois))), size=gap, replace=False)
         keep_indexes = np.append(keep_indexes, gap_indexes)
 
     # suppress any bg defined by overlap

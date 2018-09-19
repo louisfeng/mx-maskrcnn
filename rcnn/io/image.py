@@ -21,6 +21,7 @@ def get_image(roidb, scale=False):
     processed_roidb = []
     for i in range(num_images):
         roi_rec = roidb[i]
+        print(("ROI IMAGE: ", roi_rec['image']))
         assert os.path.exists(roi_rec['image']), '%s does not exist'.format(roi_rec['image'])
         im = cv2.imread(roi_rec['image'])
         if roidb[i]['flipped']:
@@ -161,6 +162,6 @@ def tensor_vstack(tensor_list, pad=0):
         for ind, tensor in enumerate(tensor_list):
             all_tensor[ind*islice:(ind+1)*islice, :tensor.shape[1], :tensor.shape[2], :tensor.shape[3], :tensor.shape[4]] = tensor
     else:
-        print tensor_list[0].shape
+        print(tensor_list[0].shape)
         raise Exception('Sorry, unimplemented.')
     return all_tensor

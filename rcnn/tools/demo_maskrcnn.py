@@ -36,8 +36,8 @@ def demo_maskrcnn(network, dataset, image_set, root_path, dataset_path, result_p
     # infer shape
     data_shape_dict = dict(test_data.provide_data)
     arg_shape, _, aux_shape = sym.infer_shape(**data_shape_dict)
-    arg_shape_dict = dict(zip(sym.list_arguments(), arg_shape))
-    aux_shape_dict = dict(zip(sym.list_auxiliary_states(), aux_shape))
+    arg_shape_dict = dict(list(zip(sym.list_arguments(), arg_shape)))
+    aux_shape_dict = dict(list(zip(sym.list_auxiliary_states(), aux_shape)))
 
     # check parameters
     for k in sym.list_arguments():
@@ -94,7 +94,7 @@ def parse_args():
 def main():
     args = parse_args()
     ctx = mx.gpu(args.gpu)
-    print args
+    print(args)
     demo_maskrcnn(args.network, args.dataset, args.image_set, args.root_path, args.dataset_path, args.result_path,
               ctx, args.prefix, args.epoch,
               args.vis, args.shuffle, args.has_rpn, args.proposal, args.thresh)

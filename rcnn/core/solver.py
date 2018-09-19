@@ -28,9 +28,9 @@ class Solver(object):
 
     def check_params(self, arg_params, aux_params):
         arg_names = self._symbol.list_arguments()
-        arg_params = {k: v for k, v in arg_params.items() if k in arg_names}
+        arg_params = {k: v for k, v in list(arg_params.items()) if k in arg_names}
         aux_names = self._symbol.list_auxiliary_states()
-        aux_params = {k: v for k, v in aux_params.items() if k in aux_names}
+        aux_params = {k: v for k, v in list(aux_params.items()) if k in aux_names}
         return arg_names, aux_names, arg_params, aux_params
 
     def fit(self, train_data, eval_metric=None,
@@ -39,7 +39,7 @@ class Solver(object):
             arg_params=None, aux_params=None,
             begin_epoch=None, num_epoch=None):
         arg_names, aux_names, arg_params, aux_params = self.check_params(arg_params, aux_params)
-        data_names = dict(train_data.provide_data + train_data.provide_label).keys()
+        data_names = list(dict(train_data.provide_data + train_data.provide_label).keys())
         param_names = [name for name in arg_names if name not in self._fixed_param_names + data_names]
         optimizer = mx.optimizer.create(optimizer, **optimizer_params)
         (kvstore, update_on_kvstore) = mx.model._create_kvstore(kvstore, len(self._context), arg_params)

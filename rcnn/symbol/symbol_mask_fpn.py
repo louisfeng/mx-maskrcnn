@@ -180,7 +180,7 @@ def get_resnet_fpn_mask_test(num_classes=config.NUM_CLASSES, num_anchors=config.
         rpn_cls_prob_dict.update({'cls_prob_stride%s'%stride:rpn_cls_prob_reshape})
         rpn_bbox_pred_dict.update({'bbox_pred_stride%s'%stride:rpn_bbox_pred})
 
-    args_dict = dict(rpn_cls_prob_dict.items()+rpn_bbox_pred_dict.items())
+    args_dict = dict(list(rpn_cls_prob_dict.items())+list(rpn_bbox_pred_dict.items()))
     aux_dict = {'im_info':im_info,'name':'rois',
                 'op_type':'proposal_fpn','output_score':False,
                 'feat_stride':config.RPN_FEAT_STRIDE,'scales':tuple(config.ANCHOR_SCALES),
@@ -190,7 +190,7 @@ def get_resnet_fpn_mask_test(num_classes=config.NUM_CLASSES, num_anchors=config.
                 'rpn_min_size':config.TEST.RPN_MIN_SIZE,
                 'threshold':config.TEST.RPN_NMS_THRESH}
     # Proposal
-    rois = mx.symbol.Custom(**dict(args_dict.items()+aux_dict.items()))
+    rois = mx.symbol.Custom(**dict(list(args_dict.items())+list(aux_dict.items())))
 
     # FPN roi pooling
     args_dict={}
@@ -395,7 +395,7 @@ def get_resnet_fpn_rpn_test(num_anchors=config.NUM_ANCHORS):
 
         rpn_cls_prob_dict.update({'cls_prob_stride%s' % stride: rpn_cls_prob_reshape})
         rpn_bbox_pred_dict.update({'bbox_pred_stride%s' % stride: rpn_bbox_pred})
-    args_dict = dict(rpn_cls_prob_dict.items()+rpn_bbox_pred_dict.items())
+    args_dict = dict(list(rpn_cls_prob_dict.items())+list(rpn_bbox_pred_dict.items()))
     aux_dict = {'im_info':im_info,'name':'rois',
                 'op_type':'proposal_fpn','output_score':True,
                 'feat_stride':config.RPN_FEAT_STRIDE,'scales':tuple(config.ANCHOR_SCALES),
@@ -405,7 +405,7 @@ def get_resnet_fpn_rpn_test(num_anchors=config.NUM_ANCHORS):
                 'rpn_min_size':config.TEST.RPN_MIN_SIZE,
                 'threshold':config.TEST.RPN_NMS_THRESH}
     # Proposal
-    group = mx.symbol.Custom(**dict(args_dict.items()+aux_dict.items()))
+    group = mx.symbol.Custom(**dict(list(args_dict.items())+list(aux_dict.items())))
 
     # rois = group[0]
     # score = group[1]
@@ -565,7 +565,7 @@ def get_resnet_fpn_maskrcnn(num_classes=config.NUM_CLASSES):
 
     bbox_loss = mx.sym.MakeLoss(name='bbox_loss', data=bbox_loss_, grad_scale=1.0 / config.TRAIN.BATCH_ROIS)
     rcnn_group = [cls_prob, bbox_loss]
-    for ind, name, last_shape in zip(range(len(rcnn_group)), ['cls_prob', 'bbox_loss'], [num_classes, num_classes * 4]):
+    for ind, name, last_shape in zip(list(range(len(rcnn_group))), ['cls_prob', 'bbox_loss'], [num_classes, num_classes * 4]):
         rcnn_group[ind] = mx.symbol.Reshape(data=rcnn_group[ind], shape=(config.TRAIN.BATCH_IMAGES, -1, last_shape),
                                             name=name + '_reshape')
 

@@ -33,8 +33,8 @@ def test_rpn(network, dataset, image_set, root_path, dataset_path,
     # infer shape
     data_shape_dict = dict(test_data.provide_data)
     arg_shape, _, aux_shape = sym.infer_shape(**data_shape_dict)
-    arg_shape_dict = dict(zip(sym.list_arguments(), arg_shape))
-    aux_shape_dict = dict(zip(sym.list_auxiliary_states(), aux_shape))
+    arg_shape_dict = dict(list(zip(sym.list_arguments(), arg_shape)))
+    aux_shape_dict = dict(list(zip(sym.list_auxiliary_states(), aux_shape)))
 
     # check parameters
     for k in sym.list_arguments():
@@ -88,7 +88,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-    print 'Called with argument:', args
+    print('Called with argument:', args)
     ctx = mx.gpu(args.gpu)
     test_rpn(args.network, args.dataset, args.image_set, args.root_path, args.dataset_path,
              ctx, args.prefix, args.epoch,

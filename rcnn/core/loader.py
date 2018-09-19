@@ -55,7 +55,7 @@ class TestLoader(mx.io.DataIter):
     def iter_next(self):
         return self.cur + self.batch_size <= self.size
 
-    def next(self):
+    def __next__(self):
         if self.iter_next():
             self.get_batch()
             self.cur += self.batch_size
@@ -175,7 +175,7 @@ class MaskROIIter(mx.io.DataIter):
     def iter_next(self):
         return self.cur + self.batch_size <= self.size
 
-    def next(self):
+    def __next__(self):
         if self.iter_next():
             self.get_batch()
             self.cur += self.batch_size
@@ -339,11 +339,11 @@ class MaskROIIter(mx.io.DataIter):
             label_list.append(label)
 
         all_data = dict()
-        for key in data_list[0].keys():
+        for key in list(data_list[0].keys()):
             all_data[key] = tensor_vstack([batch[key] for batch in data_list])
 
         all_label = dict()
-        for key in label_list[0].keys():
+        for key in list(label_list[0].keys()):
             all_label[key] = tensor_vstack([batch[key] for batch in label_list])
 
         return all_data, all_label
@@ -439,7 +439,7 @@ class AnchorLoaderFPN(mx.io.DataIter):
     def iter_next(self):
         return self.cur + self.batch_size <= self.size
 
-    def next(self):
+    def __next__(self):
         if self.iter_next():
             self.get_batch()
             self.cur += self.batch_size
@@ -513,7 +513,7 @@ class AnchorLoaderFPN(mx.io.DataIter):
                                         i_card * config.TRAIN.BATCH_IMAGES:(1 + i_card) * config.TRAIN.BATCH_IMAGES]
 
         for data, label in zip(data_list, label_list):
-            data_shape = {k: v.shape for k, v in data.items()}
+            data_shape = {k: v.shape for k, v in list(data.items())}
             del data_shape['im_info']
             feat_shape_list = []
             for s in range(len(self.feat_stride)):

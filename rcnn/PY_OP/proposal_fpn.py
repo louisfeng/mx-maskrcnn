@@ -27,25 +27,25 @@ class ProposalFPNOperator(mx.operator.CustomOp):
 
         self._scales = np.fromstring(scales[1:-1], dtype=float, sep=',')
         self._ratios = np.fromstring(ratios[1:-1], dtype=float, sep=',')
-        self._anchors_fpn = dict(zip(self.fpn_keys, generate_anchors_fpn(base_size=fpn_stride, scales=self._scales, ratios=self._ratios)))
-        self._num_anchors = dict(zip(self.fpn_keys, [anchors.shape[0] for anchors in self._anchors_fpn.values()]))
+        self._anchors_fpn = dict(list(zip(self.fpn_keys, generate_anchors_fpn(base_size=fpn_stride, scales=self._scales, ratios=self._ratios))))
+        self._num_anchors = dict(list(zip(self.fpn_keys, [anchors.shape[0] for anchors in list(self._anchors_fpn.values())])))
         self._output_score = output_score
         self._rpn_pre_nms_top_n = rpn_pre_nms_top_n
         self._rpn_post_nms_top_n = rpn_post_nms_top_n
         self._threshold = threshold
-        self._rpn_min_size_fpn = dict(zip(self.fpn_keys, np.fromstring(rpn_min_size_fpn[1:-1], dtype=int, sep=',')))
+        self._rpn_min_size_fpn = dict(list(zip(self.fpn_keys, np.fromstring(rpn_min_size_fpn[1:-1], dtype=int, sep=','))))
         self._bbox_pred = nonlinear_pred
 
         if DEBUG:
-            print 'feat_stride: {}'.format(self._feat_stride_fpn)
-            print 'anchors: {}'.format(self._anchors_fpn)
-            print 'num_anchors: {}'.format(self._num_anchors)
+            print('feat_stride: {}'.format(self._feat_stride_fpn))
+            print('anchors: {}'.format(self._anchors_fpn))
+            print('num_anchors: {}'.format(self._num_anchors))
 
     def forward(self, is_train, req, in_data, out_data, aux):
         nms = gpu_nms_wrapper(self._threshold, in_data[0][0].context.device_id)
 
-        cls_prob_dict = dict(zip(self.fpn_keys, in_data[0:len(self.fpn_keys)]))
-        bbox_pred_dict = dict(zip(self.fpn_keys, in_data[len(self.fpn_keys):2*len(self.fpn_keys)]))
+        cls_prob_dict = dict(list(zip(self.fpn_keys, in_data[0:len(self.fpn_keys)])))
+        bbox_pred_dict = dict(list(zip(self.fpn_keys, in_data[len(self.fpn_keys):2*len(self.fpn_keys)])))
         batch_size = in_data[0].shape[0]
         if batch_size > 1:
             raise ValueError("Sorry, multiple images each device is not implemented")
@@ -63,8 +63,8 @@ class ProposalFPNOperator(mx.operator.CustomOp):
             im_info = in_data[-1].asnumpy()[0, :]
 
             if DEBUG:
-                print 'im_size: ({}, {})'.format(im_info[0], im_info[1])
-                print 'scale: {}'.format(im_info[2])
+                print('im_size: ({}, {})'.format(im_info[0], im_info[1]))
+                print('scale: {}'.format(im_info[2]))
 
             height, width = int(im_info[0] / stride), int(im_info[1] / stride)
 
@@ -101,7 +101,7 @@ class ProposalFPNOperator(mx.operator.CustomOp):
         det = np.hstack((proposals, scores)).astype(np.float32)
 
         if np.shape(det)[0] == 0:
-            print "Something wrong with the input image(resolution is too low?), generate fake proposals for it."
+            print("Something wrong with the input image(resolution is too low?), generate fake proposals for it.")
             proposals = np.array([[1.0, 1.0, 2.0, 2.0]]*post_nms_topN, dtype=np.float32)
             scores = np.array([[0.9]]*post_nms_topN, dtype=np.float32)
             det = np.array([[1.0, 1.0, 2.0, 2.0, 0.9]]*post_nms_topN, dtype=np.float32)

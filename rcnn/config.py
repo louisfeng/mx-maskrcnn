@@ -161,12 +161,12 @@ dataset.Cityscape.NUM_ANCHORS = len(dataset.Cityscape.ANCHOR_SCALES) * len(datas
 dataset.Cityscape.CLASS_ID = [0, 24, 25, 26, 27, 28, 31, 32, 33]
 
 def generate_config(_network, _dataset):
-    for k, v in network[_network].items():
+    for k, v in list(network[_network].items()):
         if k in config:
             config[k] = v
         elif k in default:
             default[k] = v
-    for k, v in dataset[_dataset].items():
+    for k, v in list(dataset[_dataset].items()):
         if k in config:
             config[k] = v
         elif k in default:

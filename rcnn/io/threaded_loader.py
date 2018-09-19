@@ -1,6 +1,6 @@
 import mxnet as mx
 import numpy as np
-from Queue import Queue
+from queue import Queue
 from threading import Thread
 
 from ..config import config
@@ -32,7 +32,7 @@ class ThreadedMaskROIIter(mx.io.DataIter):
 
         # image_pad size
         self.short = short
-        self.long = long
+        self.long = int
 
         # decide data and label names (only for training)
         self.data_name = ['data']
@@ -85,7 +85,7 @@ class ThreadedMaskROIIter(mx.io.DataIter):
     def iter_next(self):
         return self.cur + self.batch_size < self.size
 
-    def next(self):
+    def __next__(self):
         TEST_NETWORK_SPEED = False
 
         if TEST_NETWORK_SPEED and self.data is not None and self.label is not None:
@@ -134,9 +134,9 @@ class ThreadedMaskROIIter(mx.io.DataIter):
             roidb = [self.roidb[idx] for idx in indexes]
             data_dict, label_dict = get_fpn_maskrcnn_batch(roidb, (len(roidb), 3, self.short, self.long))
 
-            for k, v in data_dict.items():
+            for k, v in list(data_dict.items()):
                 data_dict[k] = mx.nd.array(v, ctx=mx.cpu())
-            for k, v in label_dict.items():
+            for k, v in list(label_dict.items()):
                 label_dict[k] = mx.nd.array(v, ctx=mx.cpu())
 
             result = [data_dict, label_dict]
@@ -167,7 +167,7 @@ class ThreadedMaskROIIter(mx.io.DataIter):
 
         # image_pad size
         self.short = short
-        self.long = long
+        self.long = int
 
         # decide data and label names (only for training)
         self.data_name = ['data']
@@ -267,7 +267,7 @@ class ThreadedMaskROIIter(mx.io.DataIter):
         result = self.horizontal_result_queue.get()
         return result
 
-    def next(self):
+    def __next__(self):
         TEST_NETWORK_SPEED = False
 
         if TEST_NETWORK_SPEED and self.data is not None and self.label is not None:
@@ -308,9 +308,9 @@ class ThreadedMaskROIIter(mx.io.DataIter):
             roidb = [self.roidb[idx] for idx in indexes]
             data_dict, label_dict = get_fpn_maskrcnn_batch(roidb, input_shape)
 
-            for k, v in data_dict.items():
+            for k, v in list(data_dict.items()):
                 data_dict[k] = mx.nd.array(v, ctx=mx.cpu())
-            for k, v in label_dict.items():
+            for k, v in list(label_dict.items()):
                 label_dict[k] = mx.nd.array(v, ctx=mx.cpu())
 
             result = [data_dict, label_dict]
@@ -345,13 +345,13 @@ class ThreadedAnchorLoaderFPN(mx.io.DataIter):
         # decide data and label names
         self.data_name = ['data']
         self.label_name = ['label', 'bbox_target', 'bbox_weight']
-        self.data_shape = [("data", (batch_size, 3, short, long))]
+        self.data_shape = [("data", (batch_size, 3, short, int))]
         self.feat_shape_list = ThreadedAnchorLoaderFPN.get_feat_shape_list(self.feat_sym, self.data_shape)
         self.label_shape = self.infer_label_shape(dict(self.data_shape), self.feat_shape_list)
 
         # infer properties from roidb
         self.size = len(roidb)
-        self.index = range(self.size)
+        self.index = list(range(self.size))
 
         # status variable for synchronization between get_data and get_label
         self.cur = 0
@@ -406,7 +406,7 @@ class ThreadedAnchorLoaderFPN(mx.io.DataIter):
     def iter_next(self):
         return self.cur + self.batch_size < self.size
 
-    def next(self):
+    def __next__(self):
         TEST_NETWORK_SPEED = False
 
         if TEST_NETWORK_SPEED and self.data is not None and self.label is not None:

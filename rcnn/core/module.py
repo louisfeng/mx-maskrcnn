@@ -173,7 +173,7 @@ class MutableModule(BaseModule):
 
         # decide if shape changed
         shape_changed = False
-        for k, v in current_shapes.items():
+        for k, v in list(current_shapes.items()):
             if v != input_shapes[k]:
                 shape_changed = True
 

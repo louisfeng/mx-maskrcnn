@@ -1,10 +1,10 @@
-import cPickle
+import pickle
 import os
 import time
 import mxnet as mx
 import numpy as np
 
-from module import MutableModule
+from .module import MutableModule
 from rcnn.config import config
 from rcnn.io import image
 from rcnn.processing.bbox_transform import nonlinear_pred, clip_boxes
@@ -24,11 +24,11 @@ class Predictor(object):
 
     def predict(self, data_batch):
         self._mod.forward(data_batch)
-        return dict(zip(self._mod.output_names, self._mod.get_outputs()))
+        return dict(list(zip(self._mod.output_names, self._mod.get_outputs())))
 
 
 def im_proposal(predictor, data_batch, data_names, scale):
-    data_dict = dict(zip(data_names, data_batch.data))
+    data_dict = dict(list(zip(data_names, data_batch.data)))
     output = predictor.predict(data_batch)
 
     # drop the batch index
@@ -79,8 +79,8 @@ def generate_proposals(predictor, test_data, imdb, vis=False, thresh=0.):
         if vis:
             vis_all_detection(data_dict['data'].asnumpy(), [dets], ['obj'], scale)
 
-        print 'generating %d/%d' % (i + 1, imdb.num_images), 'proposal %d' % (dets.shape[0]), \
-            'data %.4fs net %.4fs' % (t1, t2)
+        print('generating %d/%d' % (i + 1, imdb.num_images), 'proposal %d' % (dets.shape[0]), \
+            'data %.4fs net %.4fs' % (t1, t2))
         i += 1
 
     assert len(imdb_boxes) == imdb.num_images, 'calculations not complete'
@@ -92,19 +92,19 @@ def generate_proposals(predictor, test_data, imdb, vis=False, thresh=0.):
 
     rpn_file = os.path.join(rpn_folder, imdb.name + '_rpn.pkl')
     with open(rpn_file, 'wb') as f:
-        cPickle.dump(imdb_boxes, f, cPickle.HIGHEST_PROTOCOL)
+        pickle.dump(imdb_boxes, f, pickle.HIGHEST_PROTOCOL)
 
     if thresh > 0:
         full_rpn_file = os.path.join(rpn_folder, imdb.name + '_full_rpn.pkl')
         with open(full_rpn_file, 'wb') as f:
-            cPickle.dump(original_boxes, f, cPickle.HIGHEST_PROTOCOL)
+            pickle.dump(original_boxes, f, pickle.HIGHEST_PROTOCOL)
 
-    print 'wrote rpn proposals to {}'.format(rpn_file)
+    print('wrote rpn proposals to {}'.format(rpn_file))
     return imdb_boxes
 
 def im_detect_mask(predictor, data_batch, data_names, scale=1):
     output = predictor.predict(data_batch)
-    data_dict = dict(zip(data_names, data_batch.data))
+    data_dict = dict(list(zip(data_names, data_batch.data)))
     if config.TEST.HAS_RPN:
         rois = output['rois_output'].asnumpy()[:, 1:]
     else:
@@ -148,10 +148,10 @@ def pred_eval_mask(predictor, test_data, imdb, roidb, result_path, vis=False, th
     i = 0
     t = time.time()
     results_list = []
-    all_boxes = [[[] for _ in xrange(num_images)]
-                 for _ in xrange(imdb.num_classes)]
-    all_masks = [[[] for _ in xrange(num_images)]
-                 for _ in xrange(imdb.num_classes)]
+    all_boxes = [[[] for _ in range(num_images)]
+                 for _ in range(imdb.num_classes)]
+    all_masks = [[[] for _ in range(num_images)]
+                 for _ in range(imdb.num_classes)]
     for im_info, data_batch in test_data:
         roi_rec = roidb[i]
         t1 = time.time() - t
@@ -188,7 +188,7 @@ def pred_eval_mask(predictor, test_data, imdb, roidb, result_path, vis=False, th
                            'masks': masks_this_image})
         t3 = time.time() - t
         t = time.time()
-        print 'testing {}/{} data {:.4f}s net {:.4f}s post {:.4f}s'.format(i, imdb.num_images, t1, t2, t3)
+        print('testing {}/{} data {:.4f}s net {:.4f}s post {:.4f}s'.format(i, imdb.num_images, t1, t2, t3))
         i += 1
     results_pack = {'all_boxes': all_boxes,
                     'all_masks': all_masks,
@@ -227,10 +227,10 @@ def pred_demo_mask(predictor, test_data, imdb, roidb, result_path, vis=False, th
 
         CLASSES = imdb.classes
 
-        all_boxes = [[[] for _ in xrange(num_images)]
-                     for _ in xrange(imdb.num_classes)]
-        all_masks = [[[] for _ in xrange(num_images)]
-                     for _ in xrange(imdb.num_classes)]
+        all_boxes = [[[] for _ in range(num_images)]
+                     for _ in range(imdb.num_classes)]
+        all_masks = [[[] for _ in range(num_images)]
+                     for _ in range(imdb.num_classes)]
         label = np.argmax(scores, axis=1)
         label = label[:, np.newaxis]
 
@@ -252,7 +252,7 @@ def pred_demo_mask(predictor, test_data, imdb, roidb, result_path, vis=False, th
         masks_this_image = [[]] + [all_masks[j] for j in range(1, len(CLASSES))]
         filename = roi_rec['image'].split("/")[-1]
         filename = result_path + '/' + filename.replace('.png', '') + '.jpg'
-        data_dict = dict(zip(data_names, data_batch.data))
+        data_dict = dict(list(zip(data_names, data_batch.data)))
         draw_detection_mask(data_dict['data'], boxes_this_image, masks_this_image, scale, filename)
         i += 1
 
@@ -305,7 +305,7 @@ def draw_detection_mask(im_array, boxes_this_image, masks_this_image, scale, fil
         for i in range(len(dets)):
             bbox = dets[i, :4] * scale
             score = dets[i, -1]
-            bbox = map(int, bbox)
+            bbox = list(map(int, bbox))
             cv2.rectangle(im, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color=color, thickness=2)
             cv2.putText(im, '%s %.3f' % (class_names[j], score), (bbox[0], bbox[1] + 10),
                         color=color_white, fontFace=cv2.FONT_HERSHEY_COMPLEX, fontScale=0.5)
@@ -318,7 +318,7 @@ def draw_detection_mask(im_array, boxes_this_image, masks_this_image, scale, fil
             target = im[bbox[1]: bbox[3], bbox[0]: bbox[2], c] + mask_color * mask
             target[target >= 255] = 255
             im[bbox[1]: bbox[3], bbox[0]: bbox[2], c] = target
-    print filename
+    print(filename)
     cv2.imwrite(filename, im)
 
 def draw_detection(im_array, boxes_this_image, scale, filename):
@@ -345,9 +345,9 @@ def draw_detection(im_array, boxes_this_image, scale, filename):
         for det in dets:
             bbox = det[:4] * scale
             score = det[-1]
-            bbox = map(int, bbox)
+            bbox = list(map(int, bbox))
             cv2.rectangle(im, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color=color, thickness=2)
             cv2.putText(im, '%s %.3f' % (class_names[j], score), (bbox[0], bbox[1] + 10),
                         color=color_white, fontFace=cv2.FONT_HERSHEY_COMPLEX, fontScale=0.5)
-    print filename
+    print(filename)
     cv2.imwrite(filename, im)

@@ -40,7 +40,7 @@ def demo_maskrcnn(network, ctx, prefix, epoch,img_path,
     batch = OneDataBatch(img_ori)
     mod.forward(batch, False)
     results = mod.get_outputs()
-    output = dict(zip(mod.output_names, results))
+    output = dict(list(zip(mod.output_names, results)))
     rois = output['rois_output'].asnumpy()[:, 1:]
 
 
@@ -57,10 +57,10 @@ def demo_maskrcnn(network, ctx, prefix, epoch,img_path,
 
     CLASSES  = ('__background__', 'person', 'rider', 'car', 'truck', 'bus', 'train', 'mcycle', 'bicycle')
 
-    all_boxes = [[[] for _ in xrange(1)]
-                 for _ in xrange(len(CLASSES))]
-    all_masks = [[[] for _ in xrange(1)]
-                 for _ in xrange(len(CLASSES))]
+    all_boxes = [[[] for _ in range(1)]
+                 for _ in range(len(CLASSES))]
+    all_masks = [[[] for _ in range(1)]
+                 for _ in range(len(CLASSES))]
     label = np.argmax(scores, axis=1)
     label = label[:, np.newaxis]
 
@@ -100,7 +100,7 @@ def demo_maskrcnn(network, ctx, prefix, epoch,img_path,
             if bbox[2] == bbox[0] or bbox[3] == bbox[1] or bbox[0] == bbox[1] or bbox[2] == bbox[3]  :
                 continue
             score = dets[i, -1]
-            bbox = map(int, bbox)
+            bbox = list(map(int, bbox))
             cv2.rectangle(im, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color=color, thickness=2)
             cv2.putText(im, '%s %.3f' % (class_names[j], score), (bbox[0], bbox[1] + 10),
                         color=color_white, fontFace=cv2.FONT_HERSHEY_COMPLEX, fontScale=0.5)
@@ -145,7 +145,7 @@ def parse_args():
 def main():
     args = parse_args()
     ctx = mx.gpu(args.gpu)
-    print args
+    print(args)
     demo_maskrcnn(network = args.network, 
                   ctx = ctx,
                   prefix = args.prefix,
