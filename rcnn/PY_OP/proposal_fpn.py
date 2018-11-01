@@ -11,7 +11,7 @@ from rcnn.processing.bbox_transform import nonlinear_pred, clip_boxes
 from rcnn.processing.generate_anchor import generate_anchors_fpn, anchors_plane
 from rcnn.processing.nms import gpu_nms_wrapper
 
-DEBUG = False
+DEBUG = True
 
 class ProposalFPNOperator(mx.operator.CustomOp):
     def __init__(self, feat_stride_fpn, scales, ratios, output_score,

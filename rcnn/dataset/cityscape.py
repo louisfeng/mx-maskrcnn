@@ -9,6 +9,7 @@ import cPickle
 import PIL.Image as Image
 from imdb import IMDB
 from ..processing.bbox_transform import bbox_overlaps
+import sys
 
 class Cityscape(IMDB):
     def __init__(self, image_set, root_path, dataset_path):
@@ -29,7 +30,6 @@ class Cityscape(IMDB):
         self.num_classes = len(self.classes)
         self.image_set_index = self.load_image_set_index()
         self.num_images = len(self.image_set_index)
-        print 'num_images', self.num_images
 
     def load_image_set_index(self):
         """
@@ -67,7 +67,9 @@ class Cityscape(IMDB):
                 roidb = cPickle.load(f)
             print '{} gt roidb loaded from {}'.format(self.name, cache_file)
             return roidb
+        print "before loading gt_roidb"
         gt_roidb = self.load_cityscape_annotations()
+        print "after loading gt_roidb"
         with open(cache_file, 'wb') as f:
             cPickle.dump(gt_roidb, f, cPickle.HIGHEST_PROTOCOL)
 
@@ -75,12 +77,12 @@ class Cityscape(IMDB):
 
     def load_from_seg(self, ins_seg_path):
         seg_gt = os.path.join(self.data_path, ins_seg_path)
-        print seg_gt
+        #print seg_gt
         assert os.path.exists(seg_gt), 'Path does not exist: {}'.format(seg_gt)
         im = Image.open(seg_gt)
         pixel = list(im.getdata())
         pixel = np.array(pixel).reshape([im.size[1], im.size[0]])
-        print im.size
+        #print im.size
         boxes = []
         gt_classes = []
         ins_id = []
@@ -126,7 +128,7 @@ class Cityscape(IMDB):
         assert len(imgfiles_list) == self.num_images, 'number of boxes matrix must match number of images'
         roidb = []
         for im in range(self.num_images):
-            print '===============================', im, '====================================='
+            print('===============================', im, '=====================================')
             roi_rec = dict()
             roi_rec['image'] = os.path.join(self.data_path, imgfiles_list[im]['img_path'])
             size = cv2.imread(roi_rec['image']).shape

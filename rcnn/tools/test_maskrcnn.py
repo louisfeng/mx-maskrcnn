@@ -24,6 +24,7 @@ def test_maskrcnn(network, dataset, image_set, root_path, dataset_path, result_p
     if has_rpn:
         sym = eval('get_' + network + '_mask_test')(num_classes=config.NUM_CLASSES, num_anchors=config.NUM_ANCHORS)
         imdb = eval(dataset)(image_set, root_path, dataset_path)
+        #print(dataset, image_set, root_path, dataset_path) 
         roidb = imdb.gt_roidb()
     else:
         raise NotImplementedError
@@ -36,6 +37,8 @@ def test_maskrcnn(network, dataset, image_set, root_path, dataset_path, result_p
 
     # infer shape
     data_shape_dict = dict(test_data.provide_data)
+    #print "data: ", data_shape_dict
+    #print "label: ", test_data.provide_label()
     arg_shape, _, aux_shape = sym.infer_shape(**data_shape_dict)
     arg_shape_dict = dict(zip(sym.list_arguments(), arg_shape))
     aux_shape_dict = dict(zip(sym.list_auxiliary_states(), aux_shape))
