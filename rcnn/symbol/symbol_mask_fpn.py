@@ -267,8 +267,8 @@ def get_resnet_fpn_mask_test(num_classes=config.NUM_CLASSES, num_anchors=config.
     # group output
     mask_prob = mx.symbol.Activation(data=mask_deconv_2, act_type='sigmoid', name="mask_prob")
     group = mx.symbol.Group([rois, rcnn_cls_prob, rcnn_bbox_pred, mask_prob])
-    print "SAVING RESNET_FPN_MASK_TEST"
-    group.save("resnet_fpn_mask_test")
+    #print "SAVING RESNET_FPN_MASK_TEST"
+    #group.save("resnet_fpn_mask_test")
     return group
 
 def get_resnet_fpn_rpn(num_anchors=config.NUM_ANCHORS):

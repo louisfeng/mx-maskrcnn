@@ -67,9 +67,9 @@ class Cityscape(IMDB):
                 roidb = cPickle.load(f)
             print '{} gt roidb loaded from {}'.format(self.name, cache_file)
             return roidb
-        print "before loading gt_roidb"
+        #print "before loading gt_roidb"
         gt_roidb = self.load_cityscape_annotations()
-        print "after loading gt_roidb"
+        #print "after loading gt_roidb"
         with open(cache_file, 'wb') as f:
             cPickle.dump(gt_roidb, f, cPickle.HIGHEST_PROTOCOL)
 

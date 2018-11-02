@@ -5,7 +5,7 @@ fpn roi pooling
 import mxnet as mx
 import numpy as np
 from rcnn.config import config
-DEBUG = True
+DEBUG = False
 
 
 def _unmap(data, count, inds):
@@ -34,6 +34,7 @@ class FPNROIPoolOperator(mx.operator.CustomOp):
         rois = in_data[-1]
         print "ROIS:", rois
         print "in_data:", in_data 
+        #exit()
         num_rois = rois.shape[0]
         rois_x1 = mx.nd.slice(rois, begin=(0, 1), end=(num_rois, 2))
         rois_y1 = mx.nd.slice(rois, begin=(0, 2), end=(num_rois, 3))
@@ -62,10 +63,12 @@ class FPNROIPoolOperator(mx.operator.CustomOp):
         index_list = []
         for s in self._feat_stride_fpn:
             thd = area_threshold['stride%s'%s]
+            print "thd:", thd
+            print "rois_area:", rois_area
             index = np.where(np.logical_and(thd[1] <= rois_area, rois_area < thd[0]))[0]
             if DEBUG:
                 print "stride: %s, num rois: %d" % (s, len(index))
-                print "index:", index
+                #print "index:", index
 
             if len(index) > 0:
                 index = mx.nd.array(index, rois.context)
